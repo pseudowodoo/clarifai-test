@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Image Classifier</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #preview {
+            margin-top: 10px;
+            max-width: 300px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image for Classification</h1>
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="./api/classify">
+        <input type="file" id="imageInput" name="image" accept="image/*" required>
+        <div id="previewContainer">
+            <img id="preview" src="#" alt="Image Preview" style="display:none;"/>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
