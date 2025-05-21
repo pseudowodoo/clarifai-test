@@ -5,4 +5,5 @@ index.html consist of html form and image upload
 Route /api/classify connects to clarifai food model
 
 Run npm install
-Run 
+
+Run node server.js 
