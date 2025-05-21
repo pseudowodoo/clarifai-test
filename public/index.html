@@ -1,32 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Image Classifier</title>
-    <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .container {
+            background: #fff;
+            margin-top: 40px;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            max-width: 370px;
+            width: 95vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2193b0;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .subtitle {
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        #uploadForm {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #imageInput {
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        #previewContainer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
         #preview {
-            margin-top: 10px;
-            max-width: 300px;
-            max-height: 300px;
+            max-width: 220px;
+            max-height: 220px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.12);
+            display: none;
+        }
+        button[type="submit"] {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+        }
+        .good-vibes {
+            margin-top: 2rem;
+            background: rgba(255,255,255,0.85);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(33,147,176,0.10);
+            padding: 1.2rem 1rem;
+            max-width: 350px;
+            width: 90vw;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #2193b0;
+            position: relative;
+        }
+        .good-vibes .author {
+            display: block;
+            margin-top: 0.7rem;
+            font-size: 0.98rem;
+            color: #555;
+            font-style: italic;
+        }
+        .good-vibes .refresh {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #2193b0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .good-vibes .refresh:hover {
+            color: #6dd5ed;
+        }
+        @media (max-width: 500px) {
+            .container, .good-vibes {
+                padding: 1rem 0.5rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Upload an Image for Classification</h1>
-    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="./api/classify">
-        <input type="file" id="imageInput" name="image" accept="image/*" required>
-        <div id="previewContainer">
-            <img id="preview" src="#" alt="Image Preview" style="display:none;"/>
-        </div>
-        <button type="submit">Submit</button>
-    </form>
+    <div class="container">
+        <h1>✨ Image Classifier</h1>
+        <div class="subtitle">Upload an image and let AI do the magic!</div>
+        <form id="uploadForm" enctype="multipart/form-data" method="POST" action="./api/classify">
+            <input type="file" id="imageInput" name="image" accept="image/*" required>
+            <div id="previewContainer">
+                <img id="preview" src="#" alt="Image Preview"/>
+            </div>
+            <button type="submit">Classify Image</button>
+        </form>
+    </div>
+    <div class="good-vibes" id="goodVibes">
+        <button class="refresh" title="Get another quote" onclick="fetchQuote()">&#x21bb;</button>
+        <span id="quoteText">Loading good vibes...</span>
+        <span class="author" id="quoteAuthor"></span>
+    </div>
     <script>
+        // Image preview logic
         const imageInput = document.getElementById('imageInput');
         const preview = document.getElementById('preview');
-
         imageInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -41,6 +158,24 @@
                 preview.style.display = 'none';
             }
         });
+
+        // Good Vibes quote logic
+        async function fetchQuote() {
+            const quoteText = document.getElementById('quoteText');
+            const quoteAuthor = document.getElementById('quoteAuthor');
+            quoteText.textContent = 'Loading good vibes...';
+            quoteAuthor.textContent = '';
+            try {
+                const res = await fetch('/api/good_vibes');
+                const data = await res.json();
+                quoteText.textContent = `"${data.quote}"`;
+                quoteAuthor.textContent = data.author ? `— ${data.author}` : '';
+            } catch (e) {
+                quoteText.textContent = 'Could not fetch good vibes right now.';
+                quoteAuthor.textContent = '';
+            }
+        }
+        fetchQuote();
     </script>
 </body>
 </html>
